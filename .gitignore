@@ -1,0 +1,17 @@
+# Node.js dependencies
+node_modules/
+
+# Serverless artifacts
+.serverless/
+
+# Local env files
+.env
+
+# OS files
+.DS_Store
+
+# IDE/editor folders
+.idea/
+*.suo
+*.user
+
