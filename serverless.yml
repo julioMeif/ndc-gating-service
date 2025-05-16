@@ -1,0 +1,59 @@
+service: ndc-gating-service
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  environment:
+    CONFIG_TABLE: ${self:service}-Config
+    COUNTERS_TABLE: ${self:service}-Counters
+
+functions:
+  check:
+    handler: handler.check_ndc
+    events:
+      - httpApi:
+          path: /check
+          method: post
+
+  increment:
+    handler: handler.increment_failures
+    events:
+      - httpApi:
+          path: /increment
+          method: post
+
+  config:
+    handler: handler.update_config
+    events:
+      - httpApi:
+          path: /config
+          method: post
+
+resources:
+  Resources:
+    ConfigTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-Config
+        AttributeDefinitions:
+          - AttributeName: provider
+            AttributeType: S
+        KeySchema:
+          - AttributeName: provider
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    CountersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-Counters
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
